@@ -1,6 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect,
+} from 'react-router-dom';
 import { Container } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -14,23 +20,104 @@ import ShippingScreen from './screens/ShippingScreen';
 import PaymentScreen from './screens/PaymentScreen';
 import PlaceOrderScreen from './screens/PlaceOrderScreen';
 import OrderScreen from './screens/OrderScreen';
+import UserListScreen from './screens/UserListScreen';
+import UserEditScreen from './screens/userEditScreen';
 
 const App = () => {
+  const user = useSelector((state) => state.userLogin);
+  const { userInfo } = user;
+
   return (
     <Router>
       <Header />
       <main className='py-3'>
         <Container>
-          <Route path='/login' component={LoginScreen} />
-          <Route path='/register' component={RegisterScreen} />
-          <Route path='/profile' component={ProfileScreen} />
-          <Route path='/shipping' component={ShippingScreen} />
-          <Route path='/payment' component={PaymentScreen} />
-          <Route path='/placeorder' component={PlaceOrderScreen} />
-          <Route path='/order/:id' component={OrderScreen} />
-          <Route path='/product/:id' component={ProductScreen} />
-          <Route path='/cart/:id?' component={CartScreen} />
-          <Route path='/' exact component={HomeScreen} />
+          <Switch>
+            <Route path='/login' component={LoginScreen} />
+            <Route path='/register' component={RegisterScreen} />
+            <Route
+              path='/profile'
+              render={(props) =>
+                userInfo ? (
+                  <ProfileScreen {...props} />
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/shipping'
+              render={(props) =>
+                userInfo ? (
+                  <ShippingScreen {...props} />
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/payment'
+              render={(props) =>
+                userInfo ? (
+                  <PaymentScreen {...props} />
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/placeorder'
+              render={(props) =>
+                userInfo ? (
+                  <PlaceOrderScreen {...props} />
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/order/:id'
+              render={(props) =>
+                userInfo ? <OrderScreen {...props} /> : <Redirect to='/login' />
+              }
+            />
+            <Route path='/product/:id' component={ProductScreen} />
+            <Route
+              path='/cart/:id?'
+              render={(props) =>
+                userInfo ? <CartScreen {...props} /> : <Redirect to='/login' />
+              }
+            />
+            <Route
+              path='/admin/userlist'
+              render={(props) =>
+                userInfo ? (
+                  userInfo.isAdmin ? (
+                    <UserListScreen {...props} />
+                  ) : (
+                    <Redirect to='/' />
+                  )
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/admin/user/:id/edit'
+              render={(props) =>
+                userInfo ? (
+                  userInfo.isAdmin ? (
+                    <UserEditScreen {...props} />
+                  ) : (
+                    <Redirect to='/' />
+                  )
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route path='/' exact component={HomeScreen} />
+          </Switch>
         </Container>
       </main>
       <Footer />

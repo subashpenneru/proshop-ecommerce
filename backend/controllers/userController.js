@@ -81,7 +81,8 @@ const updateUserProfile = asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
-      (user.name = name || user.name), (user.email = email || user.email);
+      user.name = name || user.name;
+      user.email = email || user.email;
       if (password) {
         user.password = password;
       }
@@ -114,4 +115,80 @@ const getUsers = asyncHandler(async (req, res, next) => {
   }
 });
 
-export { authUser, getUserProfile, registerUser, updateUserProfile, getUsers };
+const deleteUser = asyncHandler(async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+      await user.remove();
+
+      res.json({ message: 'User removed' });
+    } else {
+      res.status(404);
+      throw new Error('User not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+const getUserById = asyncHandler(async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404);
+      throw new Error('User not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+const updateUser = asyncHandler(async (req, res, next) => {
+  const { name, email, isAdmin } = req.body;
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+      user.name = name || user.name;
+      user.email = email || user.email;
+      if (isAdmin) {
+        user.isAdmin = isAdmin;
+      }
+      if (isAdmin === false) {
+        user.isAdmin = false;
+      }
+      if (isAdmin == 'undefined') {
+        user.isAdmin = user.isAdmin;
+      }
+
+      const updatedUser = await user.save();
+
+      res.json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        isAdmin: updatedUser.isAdmin,
+      });
+    } else {
+      res.status(404);
+      throw new Error('user not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+export {
+  authUser,
+  getUserProfile,
+  registerUser,
+  updateUserProfile,
+  getUsers,
+  deleteUser,
+  getUserById,
+  updateUser,
+};
