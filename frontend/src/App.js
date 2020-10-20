@@ -21,7 +21,10 @@ import PaymentScreen from './screens/PaymentScreen';
 import PlaceOrderScreen from './screens/PlaceOrderScreen';
 import OrderScreen from './screens/OrderScreen';
 import UserListScreen from './screens/UserListScreen';
-import UserEditScreen from './screens/userEditScreen';
+import UserEditScreen from './screens/UserEditScreen';
+import ProductListScreen from './screens/ProductListScreen';
+import ProductEditScreen from './screens/ProductEditScreen';
+import OrderListScreen from './screens/OrderListScreen';
 
 const App = () => {
   const user = useSelector((state) => state.userLogin);
@@ -108,6 +111,48 @@ const App = () => {
                 userInfo ? (
                   userInfo.isAdmin ? (
                     <UserEditScreen {...props} />
+                  ) : (
+                    <Redirect to='/' />
+                  )
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/admin/productlist'
+              render={(props) =>
+                userInfo ? (
+                  userInfo.isAdmin ? (
+                    <ProductListScreen {...props} />
+                  ) : (
+                    <Redirect to='/' />
+                  )
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/admin/product/:id/edit'
+              render={(props) =>
+                userInfo ? (
+                  userInfo.isAdmin ? (
+                    <ProductEditScreen {...props} />
+                  ) : (
+                    <Redirect to='/' />
+                  )
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/admin/orderlist'
+              render={(props) =>
+                userInfo ? (
+                  userInfo.isAdmin ? (
+                    <OrderListScreen {...props} />
                   ) : (
                     <Redirect to='/' />
                   )

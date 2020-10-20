@@ -23,6 +23,7 @@ import {
   USER_UPDATE_REQUEST,
   USER_UPDATE_SUCCESS,
   USER_UPDATE_FAIL,
+  USER_UPDATE_RESET,
 } from '../constants';
 
 export const userLoginReducer = (state = {}, action) => {
@@ -179,6 +180,8 @@ export const userUpdateReducer = (state = { user: {} }, action) => {
         loading: false,
         error: action.payload,
       };
+    case USER_UPDATE_RESET:
+      return { user: {} };
     default:
       return state;
   }
