@@ -121,6 +121,22 @@ const App = () => {
             />
             <Route
               path='/admin/productlist'
+              exact
+              render={(props) =>
+                userInfo ? (
+                  userInfo.isAdmin ? (
+                    <ProductListScreen {...props} />
+                  ) : (
+                    <Redirect to='/' />
+                  )
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
+              path='/admin/productlist/:pageNumber'
+              exact
               render={(props) =>
                 userInfo ? (
                   userInfo.isAdmin ? (
@@ -160,6 +176,13 @@ const App = () => {
                   <Redirect to='/login' />
                 )
               }
+            />
+            <Route path='/search/:keyword' exact component={HomeScreen} />
+            <Route path='/page/:pageNumber' exact component={HomeScreen} />
+            <Route
+              path='/search/:keyword/page/:pageNumber'
+              exact
+              component={HomeScreen}
             />
             <Route path='/' exact component={HomeScreen} />
           </Switch>

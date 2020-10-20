@@ -2,10 +2,24 @@ import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
 
 const getProducts = asyncHandler(async (req, res, next) => {
-  try {
-    const products = await Product.find({});
+  const pageSize = 5;
+  const page = +req.query.pageNumber || 1;
+  const keyword = req.query.keyword
+    ? {
+        name: {
+          $regex: req.query.keyword,
+          $options: 'i',
+        },
+      }
+    : {};
 
-    res.json(products);
+  try {
+    const count = await Product.countDocuments({ ...keyword });
+    const products = await Product.find({ ...keyword })
+      .limit(pageSize)
+      .skip(pageSize * (page - 1));
+
+    res.json({ products, page, pages: Math.ceil(count / pageSize) });
   } catch (error) {
     next(error);
   }
@@ -99,10 +113,63 @@ const updateProduct = asyncHandler(async (req, res, next) => {
   }
 });
 
+const createProductReview = asyncHandler(async (req, res, next) => {
+  const { rating, comment } = req.body;
+
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      const alreadyReviewed = product.reviews.find(
+        (r) => r.user.toString() === req.user._id.toString()
+      );
+
+      if (alreadyReviewed) {
+        res.status(400);
+        throw new Error('Product already reviewed');
+      }
+
+      const review = {
+        name: req.user.name,
+        rating: +rating,
+        comment,
+        user: req.user._id,
+      };
+
+      product.reviews.push(review);
+      product.numReviews = product.reviews.length;
+      product.rating =
+        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+        product.reviews.length;
+
+      await product.save();
+
+      res.status(201).json({ message: 'Review added' });
+    } else {
+      res.status(404);
+      throw new Error('Product not found');
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+const getTopProducts = asyncHandler(async (req, res, next) => {
+  try {
+    const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+
+    res.json(products);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export {
   getProducts,
   getProductById,
   deleteProduct,
   createProduct,
   updateProduct,
+  createProductReview,
+  getTopProducts,
 };
