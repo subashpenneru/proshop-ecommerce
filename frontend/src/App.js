@@ -150,6 +150,21 @@ const App = () => {
               }
             />
             <Route
+              path='/admin/product'
+              exact
+              render={(props) =>
+                userInfo ? (
+                  userInfo.isAdmin ? (
+                    <ProductEditScreen {...props} />
+                  ) : (
+                    <Redirect to='/' />
+                  )
+                ) : (
+                  <Redirect to='/login' />
+                )
+              }
+            />
+            <Route
               path='/admin/product/:id/edit'
               render={(props) =>
                 userInfo ? (

@@ -57,17 +57,20 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
 });
 
 const createProduct = asyncHandler(async (req, res, next) => {
+  const { name, price, description, image, brand, category, countInStock } =
+    req.body;
+
   try {
     const product = new Product({
-      name: 'Sample Name',
-      price: 0,
+      name,
+      price,
       user: req.user._id,
-      image: '/images/sample.jpg',
-      brand: 'Sample brand',
-      category: 'Sample Category',
-      countInStock: 0,
+      image: image || '/images/sample.jpg',
+      brand,
+      category,
+      countInStock,
       numReviews: 0,
-      description: 'Sample description',
+      description,
     });
 
     const createdProduct = await product.save();
@@ -79,15 +82,8 @@ const createProduct = asyncHandler(async (req, res, next) => {
 });
 
 const updateProduct = asyncHandler(async (req, res, next) => {
-  const {
-    name,
-    price,
-    description,
-    image,
-    brand,
-    category,
-    countInStock,
-  } = req.body;
+  const { name, price, description, image, brand, category, countInStock } =
+    req.body;
 
   try {
     const product = await Product.findById(req.params.id);
