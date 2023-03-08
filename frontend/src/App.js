@@ -31,7 +31,7 @@ const App = () => {
   const { userInfo } = user;
 
   return (
-    <Router basename='/'>
+    <Router>
       <Header />
       <main className='py-3'>
         <Container>
